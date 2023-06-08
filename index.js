@@ -12,6 +12,23 @@ app.use(cors())
 app.use(express.json())
 
 
+const verifyJWT =(req, res, next)=>{
+   const authorization = req.headers.authorization ;
+   if(!authorization){
+    return res.status(401).send({error: true , message: 'unauthorized access'})
+   }
+   const token = authorization.split(' ')[1]
+
+   jwt.verify(token, process.env.JWT_SECRET, (error, decoded)=>{
+    if(error){
+        return res.status(401).send({error: true, message: 'unauthorized access'})
+    }
+    req.decoded = decoded ;
+    next()
+   })
+
+}
+
 
 
 
@@ -41,7 +58,7 @@ async function run() {
     })
 
 
-    app.post('/classes', async(req, res)=> {
+    app.post('/classes', verifyJWT, async(req, res)=> {
         const newClass = req.body ;
         const result = await classCollection.insertOne(newClass)
         res.send(result)
