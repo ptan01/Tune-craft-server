@@ -48,7 +48,9 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const classCollection = client.db('tuneDb').collection('classes')
+    const classCollection = client.db('tuneDb').collection('classes') ;
+    const usersCollection = client.db('tuneDb').collection('users') ;
+    const selectCollection = client.db('tuneDb').collection('selects') ;
 
 
     app.post('/jwt', (req, res)=>{
@@ -58,12 +60,52 @@ async function run() {
     })
 
 
+   
+
+    // user related Api 
+
+    app.post('/users', async (req ,res)=> {
+      const user = req.body ;
+      const query = {email : user.email} ;
+      const existingUser = await usersCollection.findOne(query) ;
+      if(existingUser){
+        return res.send({message : 'user is already exist'})
+      }
+      const result = await usersCollection.insertOne(user)
+      res.send(result)
+    })
+
+
+
+    // Classes Related api
+
+    app.get('/instructor/classes',verifyJWT, async(req,res)=>{
+      const email = req.query.email ;
+      const query = {instructorEmail : email} ;
+      const result = await classCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    app.get('/all/classes', async(req, res)=> {
+      const result = await classCollection.find().toArray()
+      res.send(result)
+    })
+
+
     app.post('/classes', verifyJWT, async(req, res)=> {
         const newClass = req.body ;
         const result = await classCollection.insertOne(newClass)
         res.send(result)
     })
 
+
+    // selected classes related api 
+
+    app.post('/selects', async(req, res)=> {
+      const classes = req.body,
+      const result = await selectCollection.insertOne(classes) ;
+      res.send(result)
+    })
 
 
 
