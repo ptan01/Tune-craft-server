@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
+const stripe = require('stripe')('sk_test_51NEFgfBOmDoWCzvk8B7B03oXHpFyc1YcSsCmU440WoYnwpoWEJ1R45qFyBIyD7fa1bfeyoqHAKJmRYSaodJhud7r00lo2Tl4jf')
 const app = express()
 const port = process.env.PORT || 5000 ;
 
@@ -59,6 +60,18 @@ async function run() {
         res.send({token})
     })
 
+    app.post('/create-payment-intent', async(req, res)=> {
+      const price = req.body.price ;
+      const calculatePrice = price * 100 ;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: calculatePrice ,
+        currency: "usd",
+        payment_method_types: ['card']
+      })
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      })
+    })
 
    
 
@@ -108,6 +121,13 @@ async function run() {
       }
       const query = {studentEmail : email};
       const result = await selectCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/selects/:id', async(req, res)=>{
+      const id = req.params.id ;
+      const query = {_id : new ObjectId(id)}
+      const result = await selectCollection.findOne(query);
       res.send(result)
     })
 
