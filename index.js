@@ -101,8 +101,19 @@ async function run() {
 
     // selected classes related api 
 
-    app.post('/selects', async(req, res)=> {
-      const classes = req.body,
+    app.get('/selects',verifyJWT, async(req, res)=>{
+      const email = req.query.email ;
+      if(email !== req.decoded.email){
+        return res.status(403).send({error: true , message: 'forbidden access'})
+      }
+      const query = {studentEmail : email};
+      const result = await selectCollection.find(query).toArray()
+      res.send(result)
+    })
+
+
+    app.post('/selects',verifyJWT, async(req, res)=> {
+      const classes = req.body
       const result = await selectCollection.insertOne(classes) ;
       res.send(result)
     })
