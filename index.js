@@ -169,6 +169,14 @@ async function run() {
 
     // payment related api 
 
+    app.get('/payments',verifyJWT, async(req, res)=> {
+      const email = req.query.email ;
+      const query = {email : email}
+      const result =await paymentCollection.find(query).toArray()
+      res.send(result)
+    })
+
+
     app.post('/payments', async(req, res)=> {
       const payment = req.body ;
       const result = await paymentCollection.insertOne(payment) ;
