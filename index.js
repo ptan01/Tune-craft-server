@@ -3,7 +3,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
-const stripe = require('stripe')('sk_test_51NEFgfBOmDoWCzvk8B7B03oXHpFyc1YcSsCmU440WoYnwpoWEJ1R45qFyBIyD7fa1bfeyoqHAKJmRYSaodJhud7r00lo2Tl4jf')
+const stripe = require('stripe')(process.env.STRIPE_SK_SECRET)
 const app = express()
 const port = process.env.PORT || 5000 ;
 
@@ -60,7 +60,8 @@ async function run() {
         res.send({token})
     })
 
-    app.post('/create-payment-intent', async(req, res)=> {
+
+    app.post('/create-payment-intent',verifyJWT, async(req, res)=> {
       const price = req.body.price ;
       const calculatePrice = price * 100 ;
       const paymentIntent = await stripe.paymentIntents.create({
@@ -135,6 +136,14 @@ async function run() {
     app.post('/selects',verifyJWT, async(req, res)=> {
       const classes = req.body
       const result = await selectCollection.insertOne(classes) ;
+      res.send(result)
+    })
+
+    app.patch('/selects/reduced-seats', async (req, res)=>{
+      const id = req.query.id ;
+      const query = {_id : new ObjectId(id)} ;
+      const updatedDoc = {$inc: { seats: -1 }} ;
+      const result = await classCollection.updateOne(query, updatedDoc) ;
       res.send(result)
     })
 
