@@ -167,6 +167,14 @@ async function run() {
       res.send(result)
     })
 
+    // enroll related api 
+    app.get('/enroll',verifyJWT, async(req, res)=> {
+      const email = req.query.email ;
+      const query = {studentEmail : email};
+      const result = await enrollCollection.find(query).toArray();
+      res.send(result)
+    })
+
     // payment related api 
 
     app.get('/payments',verifyJWT, async(req, res)=> {
