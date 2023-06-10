@@ -86,8 +86,37 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/users/instructor',verifyJWT, async(req,res)=>{
+      const query = {role : 'instructor'}
+      const result = await usersCollection.find(query).toArray()
+      res.send(result)
+    })
 
-    
+    app.patch('/user/instructor/:id',verifyJWT, async(req, res)=>{
+      const id = req.params.id ;
+      const filter = {_id : new ObjectId(id)} ;
+      const updatedDoc = {
+        $set : {
+          role : 'instructor'
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updatedDoc) ;
+      res.send(result)
+    })
+
+
+    app.patch('/user/admin/:id',verifyJWT, async(req, res)=>{
+      const id = req.params.id ;
+      const filter = {_id : new ObjectId(id)} ;
+      const updatedDoc = {
+        $set : {
+          role : 'admin'
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updatedDoc) ;
+      res.send(result)
+    })
+
 
     app.post('/users', async (req ,res)=> {
       const user = req.body ;
