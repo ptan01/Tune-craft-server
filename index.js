@@ -177,6 +177,13 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/classes/:id', async(req, res)=> {
+      const id = req.params.id ;
+      const query = {_id : new ObjectId(id)}
+      const result = await classCollection.findOne(query);
+      res.send(result)
+    })
+
     app.get('/all/approve/classes', async(req, res)=> {
       const query = {status : 'approved'}
       const result = await classCollection.find(query).toArray()
@@ -199,7 +206,7 @@ async function run() {
       const result = await classCollection.updateOne(query, updatedDoc) ;
       res.send(result)
     })
-
+    
     // selected classes related api 
 
     app.get('/selects',verifyJWT, async(req, res)=>{
