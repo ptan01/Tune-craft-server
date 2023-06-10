@@ -80,6 +80,15 @@ async function run() {
 
     // user related Api 
 
+
+    app.get('/users',verifyJWT, async (req, res)=> {
+      const result = await usersCollection.find().toArray()
+      res.send(result)
+    })
+
+
+    
+
     app.post('/users', async (req ,res)=> {
       const user = req.body ;
       const query = {email : user.email} ;
@@ -90,6 +99,7 @@ async function run() {
       const result = await usersCollection.insertOne(user)
       res.send(result)
     })
+
 
 
 
