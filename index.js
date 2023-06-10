@@ -81,12 +81,43 @@ async function run() {
     // user related Api 
 
 
+    
+    app.get('/users/admin/:email',verifyJWT, async (req, res) => {
+      const email = req.params?.email;
+
+      if (req.decoded.email !== email) {
+        return res.send({ admin: false })
+      }
+
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = { admin: user?.role === 'admin' };
+      res.send(result)
+    })
+
+
+    app.get('/users/instructor/:email',verifyJWT, async (req, res) => {
+      const email = req.params?.email;
+
+      if (req.decoded.email !== email) {
+        return res.send({ admin: false })
+      }
+
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = { instructor: user?.role === 'instructor' };
+      res.send(result)
+    })
+
+
+
+
     app.get('/users',verifyJWT, async (req, res)=> {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
 
-    app.get('/users/instructor',verifyJWT, async(req,res)=>{
+    app.get('/users/instructor', async(req,res)=>{
       const query = {role : 'instructor'}
       const result = await usersCollection.find(query).toArray()
       res.send(result)
@@ -141,8 +172,14 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/all/classes', async(req, res)=> {
+    app.get('/all/classes',verifyJWT, async(req, res)=> {
       const result = await classCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.get('/all/approve/classes', async(req, res)=> {
+      const query = {status : 'approved'}
+      const result = await classCollection.find(query).toArray()
       res.send(result)
     })
 
@@ -153,6 +190,15 @@ async function run() {
         res.send(result)
     })
 
+    app.patch('/classes/approve/:id', async(req, res)=> {
+      const id = req.params.id ;
+      const query = {_id : new ObjectId(id)}
+      const updatedDoc = {
+        $set : {status : 'approved'}
+      }
+      const result = await classCollection.updateOne(query, updatedDoc) ;
+      res.send(result)
+    })
 
     // selected classes related api 
 
@@ -221,6 +267,13 @@ async function run() {
       const query = {email : email}
       const result =await paymentCollection.find(query).toArray()
       res.send(result)
+    })
+
+    app.get('/payments/total/:email', async(req,res)=> {
+      const email = req.params.email
+      const filter = {instructor: email}
+      const count = await paymentCollection.countDocuments(filter) ;
+      res.send({count})
     })
 
 
