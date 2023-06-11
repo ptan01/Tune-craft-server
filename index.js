@@ -197,6 +197,33 @@ async function run() {
         res.send(result)
     })
 
+    app.patch('/classes/feedback/:id', async(req, res)=> {
+      const id = req.params.id ;
+      const feedback = req.body.feedback ;
+      const filter = {_id : new ObjectId(id)} ;
+      const updatedDoc = {
+        $set: {feedback : feedback}
+      }
+      const result = await classCollection.updateOne(filter, updatedDoc) ;
+      res.send(result)
+    })
+
+    app.patch('/classes/update/:id', async(req, res)=> {
+        const id = req.params.id ;
+        const classInfo = req.body ;
+        const query = {_id : new ObjectId(id)};
+        const updatedDoc = {
+          $set: {
+            className: classInfo.name,
+            img: classInfo.img,
+            seats: classInfo.seats
+          }
+        }
+        const result = await classCollection.updateOne(query, updatedDoc)
+        res.send(result)
+    })
+
+
     app.patch('/classes/approve/:id', async(req, res)=> {
       const id = req.params.id ;
       const query = {_id : new ObjectId(id)}
