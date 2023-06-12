@@ -123,6 +123,12 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/users/best/instructor', async(req,res)=>{
+      const query = {role : 'instructor'}
+      const result = await usersCollection.find(query).limit(6).toArray()
+      res.send(result)
+    })
+
     app.patch('/user/instructor/:id',verifyJWT, async(req, res)=>{
       const id = req.params.id ;
       const filter = {_id : new ObjectId(id)} ;
@@ -190,6 +196,11 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/popular/classes', async(req ,res)=>{
+      const result = await classCollection.find().sort("enrollStudent",-1).limit(6).toArray() ;
+      res.send(result)
+    })
+
 
     app.post('/classes', verifyJWT, async(req, res)=> {
         const newClass = req.body ;
@@ -233,6 +244,16 @@ async function run() {
       const result = await classCollection.updateOne(query, updatedDoc) ;
       res.send(result)
     })
+
+    app.patch('/classes/deny/:id', async(req, res)=> {
+      const id = req.params.id ;
+      const query = {_id : new ObjectId(id)}
+      const updatedDoc = {
+        $set : {status : 'deny'}
+      }
+      const result = await classCollection.updateOne(query, updatedDoc) ;
+      res.send(result)
+    })
     
     // selected classes related api 
 
@@ -263,7 +284,7 @@ async function run() {
     app.patch('/selects/reduced-seats', async (req, res)=>{
       const id = req.query.id ;
       const query = {_id : new ObjectId(id)} ;
-      const updatedDoc = {$inc: { seats: -1 }} ;
+      const updatedDoc = {$inc: { seats: -1, enrollStudent: +1 }} ;
       const result = await classCollection.updateOne(query, updatedDoc) ;
       res.send(result)
     })
