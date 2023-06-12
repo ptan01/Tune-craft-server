@@ -320,7 +320,7 @@ async function run() {
     app.get('/payments',verifyJWT, async(req, res)=> {
       const email = req.query.email ;
       const query = {email : email}
-      const result =await paymentCollection.find(query).toArray()
+      const result =await paymentCollection.find(query).sort({_id : -1}).toArray()
       res.send(result)
     })
 
