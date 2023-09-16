@@ -123,6 +123,15 @@ async function run() {
       res.send(result)
     })
 
+    app.get("/classes/instructor/:email", async(req,res)=>{
+      const email = req.params.email ;
+      const query = {instructorEmail : email }; 
+      console.log(query)
+      const result = await classCollection.find(query).toArray()
+      console.log(result)
+      res.send(result)
+    })
+
     app.get('/users/best/instructor', async(req,res)=>{
       const query = {role : 'instructor'}
       const result = await usersCollection.find(query).limit(6).toArray()
